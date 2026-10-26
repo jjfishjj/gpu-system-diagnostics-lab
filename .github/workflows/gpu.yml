@@ -1,0 +1,10 @@
+name: NVIDIA system diagnostics
+on: {workflow_dispatch: {}}
+jobs:
+  diagnose:
+    runs-on: [self-hosted, linux, x64, gpu]
+    steps:
+      - uses: actions/checkout@v4
+      - run: bash scripts/collect_system_report.sh gpu-report
+      - uses: actions/upload-artifact@v4
+        with: {name: gpu-system-report, path: gpu-report}

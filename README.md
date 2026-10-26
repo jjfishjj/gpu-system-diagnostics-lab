@@ -1,12 +1,25 @@
 # GPU System Diagnostics Lab
 
-整合 NVIDIA-SMI、DCGM、NVML 與 Nsight 觀念的互動節點健康評分器。
+把 `nvidia-smi`、DCGM 與 GPU topology 收斂成可保存的節點健康報告；同時保留瀏覽器版互動診斷器。
 
-## 執行
+## 快速驗證
 
-直接開啟 `index.html`，調整利用率、溫度、功耗與 PCIe link 狀態即可取得診斷建議。
+```bash
+python -m unittest discover -s tests -v
+python src/gpu_diagnostics.py --input tests/fixtures/nvidia_smi.csv
+```
 
-## 實機延伸
+## NVIDIA 實機
 
-把 `nvidia-smi`、DCGM diagnostics 和 Nsight Systems 的量測值帶入實驗台，建立節點基線。
+Linux 主機需有 NVIDIA Driver；安裝 DCGM 時會額外執行 Level 2 diagnostics：
+
+```bash
+bash scripts/collect_system_report.sh gpu-report
+```
+
+報告含完整 `nvidia-smi -q`、拓撲、原始 metrics、健康判讀與選用的 DCGM 結果。自架 GPU Runner 可手動執行 `gpu.yml`，一般 CI 以固定 fixture 防止 parser 與告警規則退化。
+
+## 判讀範圍
+
+目前檢查溫度、利用率、顯存、功耗與 throttle reason；正式監控可再接 NVML/DCGM exporter 與 Prometheus 歷史基線。
 
