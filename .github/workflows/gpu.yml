@@ -5,6 +5,10 @@ jobs:
     runs-on: [self-hosted, linux, x64, gpu]
     steps:
       - uses: actions/checkout@v4
-      - run: bash scripts/collect_system_report.sh gpu-report
+      - run: mkdir -p gpu-report && nvidia-smi -q > gpu-report/nvidia-smi-q.txt && nvidia-smi topo -m > gpu-report/topology.txt
+      - run: nvidia-smi --query-gpu=index,name,temperature.gpu,utilization.gpu,memory.used,memory.total,power.draw,power.limit,clocks_throttle_reasons.active --format=csv,noheader,nounits > gpu-report/metrics.csv
+      - run: docker build -t nvidia-lab/diagnostics .
+      - run: docker run --rm --gpus all -v "$PWD/gpu-report:/report:ro" nvidia-lab/diagnostics --input /report/metrics.csv | tee gpu-report/health.json
+      - run: if command -v dcgmi >/dev/null; then dcgmi diag -r 2 > gpu-report/dcgm-diag.txt; fi
       - uses: actions/upload-artifact@v4
         with: {name: gpu-system-report, path: gpu-report}

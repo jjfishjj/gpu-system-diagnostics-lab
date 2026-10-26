@@ -17,6 +17,13 @@ Linux 主機需有 NVIDIA Driver；安裝 DCGM 時會額外執行 Level 2 diagno
 bash scripts/collect_system_report.sh gpu-report
 ```
 
+Parser 也可透過固定 CUDA base image 執行：
+
+```bash
+docker build -t nvidia-lab/diagnostics .
+docker run --rm --gpus all -v "$PWD/gpu-report:/report:ro" nvidia-lab/diagnostics --input /report/metrics.csv
+```
+
 報告含完整 `nvidia-smi -q`、拓撲、原始 metrics、健康判讀與選用的 DCGM 結果。自架 GPU Runner 可手動執行 `gpu.yml`，一般 CI 以固定 fixture 防止 parser 與告警規則退化。
 
 ## 判讀範圍
